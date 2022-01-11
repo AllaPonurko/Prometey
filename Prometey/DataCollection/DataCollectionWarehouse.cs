@@ -12,7 +12,7 @@ namespace Prometey.DataCollection
 {
    public class DataCollectionWarehouse : IDataCollection<Warehouse>
     {
-        public List<Warehouse> warehouses;
+        public List<Warehouse> warehouses=new List<Warehouse>();
 
         public string FileName { get; set; }
         public List<Warehouse> Load()

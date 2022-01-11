@@ -8,6 +8,10 @@ namespace Prometey.Entities
 {[Serializable]
     public class Analysis:Base
     {
+        public Analysis(Culture culture)
+        {
+            Name = "Анализ культуры "+$"{culture.Name}" +" на соответствие норме";
+        }
         private Guid cultureId;
 
         public Guid GetCultureId()
@@ -15,10 +19,12 @@ namespace Prometey.Entities
             return cultureId;
         }
 
-        public void SetCultureId()
+        public void SetCultureId(Culture culture)
         {
-            Culture culture = new Culture();
             cultureId = culture.Id;
         }
+        public bool Result = false;
+        
+        
     }
 }

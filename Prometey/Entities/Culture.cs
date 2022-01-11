@@ -22,6 +22,7 @@ namespace Prometey.Entities
       /// прайсовая цена
       /// </summary>
         public double Price { get; set; }
+        public Analysis Analysis;
 /// <summary>
 /// количество товара
 /// </summary>
@@ -36,9 +37,8 @@ namespace Prometey.Entities
             return analysisId;
         }
 
-        public void SetAnalysisId()
+        public void SetAnalysisId(Analysis analysis)
         {
-            Analysis analysis = new Analysis();
             analysisId = analysis.Id;
         }
     }

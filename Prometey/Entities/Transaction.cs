@@ -1,4 +1,5 @@
 ﻿using Prometey.DataCollection;
+using Prometey.Exceptions.Transactions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -75,42 +76,116 @@ namespace Prometey.Entities
         /// <summary>
         ///Id склада, учавствующего в транзакции
         /// </summary>
-        public void SetWarehouseId()
+        public void SetWarehouseId(Warehouse warehouse)
         {
-            Warehouse warehouse = new Warehouse();
             warehouseId = warehouse.Id;
         }
-
-        public void TransactionSale(Culture culture,Warehouse warehouse)
+        /// <summary>
+        /// метод проверки выполнения анализа
+        /// </summary>
+        /// <param name="analysis">анализ</param>
+        /// <returns></returns>
+        public bool Implement(Analysis analysis)
+        {
+            if (analysis != null)
+                analysis.Result = true;
+            else analysis.Result = false;
+            return analysis.Result;
+        }
+        /// <summary>
+        /// транзакция по продаже
+        /// </summary>
+        /// <param name="culture">культура</param>
+        public void TransactionSale(Culture culture)
         {
             TransactionCount = Convert.ToDouble(ReadLine());
-            if (culture.Count>= TransactionCount && culture.Id==warehouse.GetCultureId())
-                try
+            DataCollectionWarehouse warehouse1 = new DataCollectionWarehouse();
+            _ = new List<Warehouse>();
+            List<Warehouse> warehouses = warehouse1.Load();
+            List<Warehouse> warehousesTemp = new List<Warehouse>();
+            Analysis analysis = new Analysis(culture);
+            if (warehouses != null)
+                foreach (Warehouse item in warehouses)
                 {
-                    double Sum = TransactionCount * culture.Price;
-                    culture.Count -= TransactionCount;
-                    WriteLine($"{culture.Name}\t" + $"{culture.Price}\t" + $"{TransactionCount}\t" + $"{Sum}");
-                }
-                catch(Exception e)
-                {
-                    WriteLine(e.Message);
+                    if (culture.Id == item.Culture.Id && item.Culture.Count >= TransactionCount)
+                    { 
+                        WriteLine($"{item.Name}\t" + $"{item.Culture.Name}\t" + $"{item.Culture.Count}");
+                        warehousesTemp.Add(item);
+                    }
+                    else
+                    { 
+                    }
                 }
             else
             {
-                WriteLine($"По выбранному складу недостаточное для сделки количество:\n Требуется "
-                    +$"{TransactionCount}\t"+$"В наличии "+$"{culture.Count}") ;
-                DataCollectionWarehouse warehouse1 = new DataCollectionWarehouse();
-                List<Warehouse> warehouses = warehouse1.Load();
-                foreach(Warehouse item in warehouses)
+                throw new TransactionsExeption();
+            }
+            WriteLine($"Выберите склад:\n");
+            string Temp=ReadLine();
+            foreach (Warehouse item in warehousesTemp)
+                if (item.Name == Temp)
                 {
-                    if (culture.Id == item.GetCultureId())
-                        WriteLine($"{item.Name}\t" + $"{item.Culture.Name}\t" + $"{item.Culture.Count}");
+                    try
+                    {
+                        double Sum = TransactionCount * item.Culture.Price;
+                        item.Culture.Count -= TransactionCount;
+                        WriteLine($"{item.Culture.Name}\t" + $"{item.Culture.Price}\t" + $"{TransactionCount}\t" + $"={Sum}");
+                        if (Implement(analysis) == true)
+                            WriteLine($"Анализ подтверждён");
+                    }
+                    catch (TransactionsExeption e)
+                    {
+                        WriteLine(e.Message);
+                    }
+                }
+                
+        }
+        /// <summary>
+        /// транзакция по покупке
+        /// </summary>
+        /// <param name="culture">культура</param>
+        public void TransactionBuy(Culture culture)
+        {
+            TransactionCount = Convert.ToDouble(ReadLine());
+            DataCollectionWarehouse warehouse1 = new DataCollectionWarehouse();
+            _ = new List<Warehouse>();
+            List<Warehouse> warehouses = warehouse1.Load();
+            List<Warehouse> warehousesTemp = new List<Warehouse>();
+            Analysis analysis = new Analysis(culture);
+            if (warehouses != null)
+                foreach (Warehouse item in warehouses)
+                {
+                    if (item.Capacity >= TransactionCount)
+                    {
+                        warehousesTemp.Add(item);
+                    }
+                    else
+                    {
+                    }
+                }
+            else
+            {
+                throw new TransactionsExeption();
+            }
+            WriteLine($"Выберите склад:\n");
+            string Temp = ReadLine();
+            foreach (Warehouse item in warehousesTemp)
+                if (item.Name == Temp)
+                {
+                    try
+                    {
+                        double Sum = TransactionCount * item.Culture.Price;
+                        item.Culture.Count += TransactionCount;
+                        WriteLine($"{item.Culture.Name}\t" + $"{item.Culture.Price}\t" + $"{TransactionCount}\t" + $"={Sum}");
+                        if (Implement(analysis) == true)
+                            WriteLine($"Анализ подтверждён");
+                    }
+                    catch (TransactionsExeption e)
+                    {
+                        WriteLine(e.Message);
+                    }
                 }
 
-            }
-        }
-        public void TransactionBuy()
-        {
 
         }
     }

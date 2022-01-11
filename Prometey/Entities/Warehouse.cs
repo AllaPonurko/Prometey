@@ -30,16 +30,6 @@ namespace Prometey.Entities
             cityId = city.Id;
         }
 
-        private Guid cultureId;
-
-        public Guid GetCultureId()
-        {
-            return cultureId;
-        }
-
-        public void SetCultureId(Culture culture)
-        {
-            cultureId = culture.Id;
-        }
+        
     }
 }
